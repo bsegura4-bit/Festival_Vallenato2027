@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block titulo %}{{ votacion.titulo }}{% endblock %}
+{% block contenido %}
+<a class="volver" href="{{ votacion.categoria.get_absolute_url }}"><span aria-hidden="true">←</span> Volver a {{ votacion.categoria.nombre }}</a>
+<div class="detalle">
+ <div class="rv">
+  <p class="eyebrow">{{ votacion.categoria.nombre }} · {{ votacion.categoria.edicion.anio }}</p>
+  <h1>{{ votacion.titulo }}</h1>
+  {% if votacion.descripcion %}<p class="muted mt-3">{{ votacion.descripcion|linebreaksbr }}</p>{% endif %}
+  <hr class="divider">
+  <dl class="datos">
+   <dt>Estado</dt><dd>{% with v=votacion %}{% include "festival/_estado.html" %}{% endwith %}</dd>
+   <dt>Modalidad</dt><dd>{{ votacion.get_modalidad_display }}</dd>
+   <dt>Apertura</dt><dd>{{ votacion.fecha_apertura|date:"j \d\e F \d\e Y, g:i a"|default:"Por definir" }}</dd>
+   <dt>Cierre</dt><dd>{{ votacion.fecha_cierre|date:"j \d\e F \d\e Y, g:i a"|default:"Por definir" }}</dd>
+   <dt>Votos por persona</dt><dd class="num">{{ votacion.votos_por_usuario }} <small class="muted">(pendiente de validación, RN-04)</small></dd>
+   <dt>Opciones</dt><dd class="num">{{ votacion.opciones_activas|length }}</dd>
+  </dl>
+
+  <h2 class="h3 mt-5" id="t-op">Opciones participantes</h2>
+  <ul class="opciones-lista" aria-labelledby="t-op">
+   {% for o in votacion.opciones_activas %}
+   <li class="opcion"><span class="indice num" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span><span><span class="nombre">{{ o.nombre }}</span>{% if o.descripcion %}<small>{{ o.descripcion }}</small>{% endif %}</span></li>
+   {% empty %}<li class="vacio">Esta votación todavía no tiene opciones.</li>
+   {% endfor %}
+  </ul>
+ </div>
+ <aside class="panel lateral rv" style="--i:2" aria-labelledby="listo">
+  {% if votacion.acepta_votos %}
+   <h2 class="h3" id="listo">¿Listo para votar?</h2>
+   <p class="muted">El registro de votos se habilitará en la siguiente entrega, con el control de duplicados y las reglas de elegibilidad.</p>
+   {% if user.is_authenticated %}
+    <button class="btn btn-primary w-100" type="button" disabled>Votar (próximamente)</button>
+   {% else %}
+    <a class="btn btn-primary w-100" href="{% url 'cuentas:login' %}?next={{ request.path|urlencode }}">Inicia sesión para votar</a>
+    <p class="mt-3 mb-0 text-center small">¿No tienes cuenta? <a href="{% url 'cuentas:registro' %}">Regístrate</a></p>
+   {% endif %}
+  {% elif votacion.estado == 'abierta' %}
+   <h2 class="h3" id="listo">Fuera del periodo</h2>
+   <p class="muted mb-0">Esta votación está fuera de su periodo de apertura y cierre (RN-03).</p>
+  {% else %}
+   <h2 class="h3" id="listo">Votación cerrada</h2>
+   <p class="muted mb-0">Ya no recibe votos. Los resultados se publicarán según la política que apruebe la Fundación (RN-06).</p>
+  {% endif %}
+ </aside>
+</div>
+{% endblock %}

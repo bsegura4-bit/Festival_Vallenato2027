@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Votaciones{% endblock %}
+{% block contenido %}
+<div class="encabezado rv">
+ <div><p class="eyebrow">{% if edicion %}{{ edicion.nombre }}{% else %}Sin edición publicada{% endif %}</p><h1>Votaciones disponibles</h1><p class="muted">Las abiertas aparecen primero.</p></div>
+</div>
+<nav class="filtros mt-3" aria-label="Filtrar por estado">
+ <a class="chip" href="?{% if edicion %}edicion={{ edicion.anio }}{% endif %}" {% if not estado %}aria-current="true"{% endif %}>Todas</a>
+ <a class="chip" href="?estado=abierta{% if edicion %}&edicion={{ edicion.anio }}{% endif %}" {% if estado == 'abierta' %}aria-current="true"{% endif %}>Abiertas</a>
+ <a class="chip" href="?estado=cerrada{% if edicion %}&edicion={{ edicion.anio }}{% endif %}" {% if estado == 'cerrada' %}aria-current="true"{% endif %}>Cerradas</a>
+ {% if ediciones|length > 1 %}{% for e in ediciones %}<a class="chip chip-ed" href="?edicion={{ e.anio }}{% if estado %}&estado={{ estado }}{% endif %}" {% if e.pk == edicion.pk %}aria-current="true"{% endif %}>{{ e.anio }}</a>{% endfor %}{% endif %}
+</nav>
+{% with mostrar_categoria=True %}{% include "festival/_lista_votaciones.html" %}{% endwith %}
+{% endblock %}

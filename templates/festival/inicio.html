@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block titulo %}Inicio{% endblock %}
+{% block contenido %}
+<section class="hero">
+ <div class="rv" style="--i:0">
+  <p class="eyebrow">{% if edicion %}{% if edicion.numero %}{{ edicion.numero }}.ª edición · {% endif %}{{ edicion.anio }}{% else %}Festival de la Leyenda Vallenata{% endif %}</p>
+  <h1>Las votaciones del Festival de la Leyenda Vallenata</h1>
+  <p class="lead">{% if edicion.descripcion %}{{ edicion.descripcion }}{% else %}Consulta las votaciones disponibles, elige tu opción y confirma tu voto desde el celular o el computador.{% endif %}</p>
+  <div class="hero-acciones">
+   <a class="btn btn-primary" href="{% url 'festival:votaciones' %}">Ver votaciones</a>
+   <a class="enlace-flecha" href="{% url 'festival:categorias' %}">Explorar categorías <span aria-hidden="true">→</span></a>
+  </div>
+ </div>
+ <aside class="panel rv" style="--i:2" aria-labelledby="como">
+  <h2 class="h3" id="como">Cómo votar</h2>
+  <ol class="como-votar">
+   <li><div><strong>Elige una votación</strong><span>Entra por categoría o desde la lista de votaciones abiertas.</span></div></li>
+   <li><div><strong>Selecciona tu opción</strong><span>Revisa las alternativas y marca la que prefieras.</span></div></li>
+   <li><div><strong>Confirma tu voto</strong><span>Verás un mensaje cuando quede registrado (siguiente entrega).</span></div></li>
+  </ol>
+ </aside>
+</section>
+
+{% if edicion %}
+<div class="estadisticas rv" style="--i:3" aria-label="Resumen de la edición">
+ <div class="estad"><span class="valor num">{{ total_categorias }}</span><span class="et">Categorías</span></div>
+ <div class="estad"><span class="valor num">{{ total_votaciones }}</span><span class="et">Votaciones publicadas</span></div>
+ <div class="estad"><span class="valor num">{{ total_abiertas }}</span><span class="et">Abiertas ahora</span></div>
+ <div class="estad"><span class="valor">{{ edicion.lugar }}</span><span class="et">{% if edicion.fecha_inicio %}{{ edicion.fecha_inicio|date:"j M" }}{% if edicion.fecha_fin %} – {{ edicion.fecha_fin|date:"j M Y" }}{% endif %}{% else %}Fechas por definir{% endif %}</span></div>
+</div>
+
+<div class="dos-columnas mt-5">
+ <section aria-labelledby="t-abiertas">
+  <h2 class="h3" id="t-abiertas">Votaciones abiertas</h2>
+  {% if abiertas %}
+  <ul class="filas mt-3">
+   {% for v in abiertas %}
+   <li><a class="fila" href="{{ v.get_absolute_url }}"><span class="indice" aria-hidden="true">●</span><span><span class="titulo">{{ v.titulo }}</span><span class="meta">{{ v.categoria.nombre }}{% if v.fecha_cierre %} · cierra el {{ v.fecha_cierre|date:"j \d\e F, g:i a" }}{% endif %}</span></span><span class="flecha" aria-hidden="true">→</span></a></li>
+   {% endfor %}
+  </ul>
+  {% else %}<p class="vacio">No hay votaciones abiertas en este momento.</p>{% endif %}
+ </section>
+ <section aria-labelledby="t-cat">
+  <h2 class="h3" id="t-cat">Categorías</h2>
+  <ul class="filas mt-3">
+   {% for c in categorias %}
+   <li><a class="fila" href="{{ c.get_absolute_url }}"><span class="indice num" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span><span><span class="titulo">{{ c.nombre }}</span><span class="meta">{{ c.total_votaciones }}&nbsp;votaci{{ c.total_votaciones|pluralize:"ón,ones" }}</span></span><span class="flecha" aria-hidden="true">→</span></a></li>
+   {% empty %}<li class="vacio">Aún no hay categorías publicadas.</li>
+   {% endfor %}
+  </ul>
+ </section>
+</div>
+{% else %}
+<p class="vacio mt-4">Todavía no hay una edición publicada. Un administrador puede crearla desde el panel de Django.</p>
+{% endif %}
+
+{% if not user.is_authenticated %}
+<p class="nota-registro">¿Ya tienes cuenta? <a href="{% url 'cuentas:login' %}">Inicia sesión</a> o <a href="{% url 'cuentas:registro' %}">crea una cuenta</a>.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titulo %}Mi cuenta{% endblock %}
+{% block contenido %}
+<div class="rv"><p class="eyebrow">Mi cuenta</p><h1>Hola, {{ user.first_name|default:user.username }}</h1><p class="muted">Tu sesión está activa. Desde aquí podrás consultar tus votos cuando se habilite el registro de votos.</p></div>
+<div class="panel form-estrecho mt-4 rv" style="--i:1">
+ <dl class="datos">
+  <dt>Nombre</dt><dd>{{ user.get_full_name|default:"—" }}</dd>
+  <dt>Correo</dt><dd>{{ user.email|default:"—" }}</dd>
+  <dt>Miembro desde</dt><dd>{{ user.date_joined|date:"j \d\e F \d\e Y" }}</dd>
+  <dt>Último ingreso</dt><dd>{{ user.last_login|date:"j \d\e F \d\e Y, g:i a"|default:"—" }}</dd>
+  <dt>Rol</dt><dd>{% if user.is_staff %}Administrador{% else %}Votante{% endif %}</dd>
+  <dt>Votos emitidos</dt><dd class="num">{{ user.votos.count }}</dd>
+ </dl>
+ <form method="post" action="{% url 'cuentas:logout' %}" class="mt-4">{% csrf_token %}<button class="btn btn-outline-secondary" type="submit">Cerrar sesión</button></form>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block titulo %}{{ categoria.nombre }}{% endblock %}
+{% block contenido %}
+<a class="volver" href="{% url 'festival:categorias' %}?edicion={{ categoria.edicion.anio }}"><span aria-hidden="true">←</span> Volver a las categorías</a>
+<div class="rv"><p class="eyebrow">{{ categoria.edicion.nombre }}</p><h1>{{ categoria.nombre }}</h1>{% if categoria.descripcion %}<p class="muted">{{ categoria.descripcion }}</p>{% endif %}</div>
+<h2 class="h3 mt-4">Votaciones</h2>
+{% include "festival/_lista_votaciones.html" %}
+{% endblock %}

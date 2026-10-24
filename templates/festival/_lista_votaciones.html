@@ -1,0 +1,6 @@
+<ul class="filas mt-3">
+ {% for v in votaciones %}
+ <li class="rv" style="--i:{{ forloop.counter }}"><a class="fila" href="{{ v.get_absolute_url }}"><span class="indice" aria-hidden="true">{% if v.estado == 'abierta' %}●{% else %}○{% endif %}</span><span><span class="titulo">{{ v.titulo }}</span><span class="meta">{% if mostrar_categoria %}{{ v.categoria.nombre }} · {% endif %}{{ v.total_opciones }}&nbsp;opci{{ v.total_opciones|pluralize:"ón,ones" }}{% if v.estado == 'abierta' and v.fecha_cierre %} · cierra el {{ v.fecha_cierre|date:"j \d\e F" }}{% elif v.estado == 'cerrada' %} · resultados según la política de publicación{% endif %}</span></span><span class="d-flex align-items-center gap-3">{% include "festival/_estado.html" %}<span class="flecha" aria-hidden="true">→</span></span></a></li>
+ {% empty %}<li class="vacio">No hay votaciones publicadas aquí todavía.</li>
+ {% endfor %}
+</ul>

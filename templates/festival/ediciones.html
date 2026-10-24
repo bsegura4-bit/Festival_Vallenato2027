@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block titulo %}Ediciones{% endblock %}
+{% block contenido %}
+<div class="rv"><p class="eyebrow">Festival de la Leyenda Vallenata</p><h1>Ediciones</h1><p class="muted">Cada edición anual agrupa sus propias categorías y votaciones.</p></div>
+<ul class="filas mt-4">
+ {% for e in ediciones %}
+ <li class="rv" style="--i:{{ forloop.counter }}"><a class="fila" href="{{ e.get_absolute_url }}"><span class="indice num" aria-hidden="true">{{ e.anio }}</span><span><span class="titulo">{{ e.nombre }}</span><span class="meta">{% if e.numero %}{{ e.numero }}.ª edición · {% endif %}{{ e.lugar }} · {{ e.total_categorias }}&nbsp;categor{{ e.total_categorias|pluralize:"ía,ías" }}</span></span><span class="flecha" aria-hidden="true">→</span></a></li>
+ {% empty %}<li class="vacio">No hay ediciones publicadas.</li>
+ {% endfor %}
+</ul>
+{% endblock %}

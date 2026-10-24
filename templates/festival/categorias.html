@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titulo %}Categorías{% endblock %}
+{% block contenido %}
+{% if request.resolver_match.url_name == 'edicion_detalle' %}<a class="volver" href="{% url 'festival:ediciones' %}"><span aria-hidden="true">←</span> Volver a las ediciones</a>{% endif %}
+<div class="encabezado rv">
+ <div><p class="eyebrow">{% if edicion %}{{ edicion.nombre }}{% else %}Sin edición publicada{% endif %}</p><h1>Categorías</h1><p class="muted">Elige una categoría para ver sus votaciones.</p></div>
+ {% if ediciones|length > 1 %}
+ <form method="get" class="filtro" action="{% url 'festival:categorias' %}">
+  <label class="form-label" for="f-ed">Edición</label>
+  <select id="f-ed" name="edicion" class="form-select" data-autoenvio>
+   {% for e in ediciones %}<option value="{{ e.anio }}" {% if e.pk == edicion.pk %}selected{% endif %}>{{ e.anio }}</option>{% endfor %}
+  </select>
+  <noscript><button class="btn btn-outline-primary btn-sm mt-2">Filtrar</button></noscript>
+ </form>
+ {% endif %}
+</div>
+<ul class="filas mt-4">
+ {% for c in categorias %}
+ <li class="rv" style="--i:{{ forloop.counter }}"><a class="fila" href="{{ c.get_absolute_url }}"><span class="indice num" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span><span><span class="titulo">{{ c.nombre }}</span><span class="meta">{{ c.total_votaciones }}&nbsp;votaci{{ c.total_votaciones|pluralize:"ón,ones" }}{% if c.descripcion %} · {{ c.descripcion|truncatechars:90 }}{% endif %}</span></span><span class="flecha" aria-hidden="true">→</span></a></li>
+ {% empty %}<li class="vacio">Esta edición aún no tiene categorías publicadas.</li>
+ {% endfor %}
+</ul>
+{% endblock %}

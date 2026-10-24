@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block titulo %}Crear cuenta{% endblock %}
+{% block contenido %}
+<a class="volver" href="{% url 'cuentas:login' %}"><span aria-hidden="true">←</span> Volver a iniciar sesión</a>
+<div class="rv"><p class="eyebrow">Registro</p><h1>Crea tu cuenta</h1><p class="muted">Solo pedimos lo necesario para que puedas votar.</p></div>
+<form class="panel form-estrecho rv" style="--i:1" method="post" novalidate>
+ {% csrf_token %}
+ {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>{% endif %}
+ {% for campo in form %}{% include "cuentas/_campo.html" %}{% endfor %}
+ <button class="btn btn-primary w-100 mt-2" type="submit">Crear cuenta</button>
+</form>
+{% endblock %}
