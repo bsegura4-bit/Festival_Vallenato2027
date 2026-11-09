@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block titulo %}Mi cuenta{% endblock %}
 {% block contenido %}
-<div class="rv"><p class="eyebrow">Mi cuenta</p><h1>Hola, {{ user.first_name|default:user.username }}</h1><p class="muted">Tu sesión está activa. Desde aquí podrás consultar tus votos cuando se habilite el registro de votos.</p></div>
+<div class="rv"><p class="eyebrow">Mi cuenta</p><h1>Hola, {{ user.first_name|default:user.username }}</h1><p class="muted">Tu sesión está activa. Puedes votar en cada categoría abierta y revisar tu participación en <a href="{% url 'festival:mis_votos' %}">Mis votos</a>.</p></div>
 <div class="panel form-estrecho mt-4 rv" style="--i:1">
  <dl class="datos">
   <dt>Nombre</dt><dd>{{ user.get_full_name|default:"—" }}</dd>
