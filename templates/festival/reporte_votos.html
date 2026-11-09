@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block titulo %}Reporte de votos{% endblock %}
+{% block contenido %}
+<div class="encabezado rv">
+ <div><p class="eyebrow">Administración</p><h1>Reporte de votos</h1><p class="muted">Conteo leído directamente de MySQL. Solo lo ven los administradores.</p></div>
+ {% if ediciones %}
+ <form method="get" class="filtro"><label class="form-label" for="f-ed">Edición</label>
+  <select class="form-select" id="f-ed" name="edicion" data-autoenvio>{% for e in ediciones %}<option value="{{ e.anio }}" {% if e == edicion %}selected{% endif %}>{{ e.anio }}</option>{% endfor %}</select>
+  <noscript><button class="btn btn-sm btn-primary mt-2">Ver</button></noscript>
+ </form>
+ {% endif %}
+</div>
+
+<div class="estadisticas">
+ <div class="estad"><span class="valor num">{{ total_votos }}</span><span class="et">votos registrados</span></div>
+ <div class="estad"><span class="valor num">{{ total_votantes }}</span><span class="et">personas que votaron</span></div>
+ <div class="estad"><span class="valor num">{{ votaciones|length }}</span><span class="et">votaciones publicadas</span></div>
+ <div class="estad"><a class="valor enlace-flecha fs-5" href="{% url 'admin:festival_voto_changelist' %}">Ver registros →</a><span class="et">detalle en el admin</span></div>
+</div>
+
+{% for v in votaciones %}
+<section class="panel mt-4">
+ <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center">
+  <h2 class="h4 m-0">{{ v.categoria.nombre }} · {{ v.titulo }}</h2>
+  <span>{% include "festival/_estado.html" %} <strong class="num ms-2">{{ v.total }}</strong> voto{{ v.total|pluralize }}</span>
+ </div>
+ <table class="table table-sm mt-3 mb-0 tabla-reporte">
+  <thead><tr><th scope="col">Opción</th><th scope="col" class="text-end">Votos</th><th scope="col" class="w-50">Porcentaje</th></tr></thead>
+  <tbody>
+  {% for o in v.opciones.all %}
+   <tr><td>{{ o.nombre }}</td><td class="text-end num">{{ o.total }}</td>
+    <td>{% if v.total %}{% widthratio o.total v.total 100 as pct %}<div class="barra-pct" role="img" aria-label="{{ pct }} %"><span style="width: {{ pct }}%"></span></div> <small class="num">{{ pct }} %</small>{% else %}<small class="muted">sin votos</small>{% endif %}</td></tr>
+  {% endfor %}
+  </tbody>
+ </table>
+</section>
+{% empty %}
+<p class="vacio mt-4">No hay votaciones publicadas en esta edición.</p>
+{% endfor %}
+
+<h2 class="h3 mt-5">Últimos votos registrados</h2>
+<div class="panel mt-3 table-responsive">
+ <table class="table table-sm mb-0">
+  <thead><tr><th scope="col">Fecha</th><th scope="col">Usuario</th><th scope="col">Categoría</th><th scope="col">Opción</th></tr></thead>
+  <tbody>
+  {% for voto in ultimos %}
+   <tr><td class="num">{{ voto.fecha|date:"d/m/Y H:i:s" }}</td><td>{{ voto.usuario.username }}</td><td>{{ voto.categoria.nombre }}</td><td>{{ voto.opcion }}</td></tr>
+  {% empty %}<tr><td colspan="4" class="muted">Aún no hay votos.</td></tr>
+  {% endfor %}
+  </tbody>
+ </table>
+</div>
+{% endblock %}

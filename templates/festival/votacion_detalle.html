@@ -2,6 +2,7 @@
 {% block titulo %}{{ votacion.titulo }}{% endblock %}
 {% block contenido %}
 <a class="volver" href="{{ votacion.categoria.get_absolute_url }}"><span aria-hidden="true">←</span> Volver a {{ votacion.categoria.nombre }}</a>
+{% with puede_votar=votacion.acepta_votos %}
 <div class="detalle">
  <div class="rv">
   <p class="eyebrow">{{ votacion.categoria.nombre }} · {{ votacion.categoria.edicion.anio }}</p>
@@ -13,35 +14,58 @@
    <dt>Modalidad</dt><dd>{{ votacion.get_modalidad_display }}</dd>
    <dt>Apertura</dt><dd>{{ votacion.fecha_apertura|date:"j \d\e F \d\e Y, g:i a"|default:"Por definir" }}</dd>
    <dt>Cierre</dt><dd>{{ votacion.fecha_cierre|date:"j \d\e F \d\e Y, g:i a"|default:"Por definir" }}</dd>
-   <dt>Votos por persona</dt><dd class="num">{{ votacion.votos_por_usuario }} <small class="muted">(pendiente de validación, RN-04)</small></dd>
+   <dt>Regla</dt><dd>Un voto por persona en la categoría {{ votacion.categoria.nombre }}</dd>
    <dt>Opciones</dt><dd class="num">{{ votacion.opciones_activas|length }}</dd>
   </dl>
 
   <h2 class="h3 mt-5" id="t-op">Opciones participantes</h2>
+  {% if puede_votar and user.is_authenticated and not voto_previo %}
+  <form method="post" action="{% url 'festival:votar' votacion.pk %}" id="form-voto">
+   {% csrf_token %}
+   <fieldset aria-labelledby="t-op">
+    <ul class="opciones-lista">
+     {% for o in votacion.opciones_activas %}
+     <li><label class="opcion elegible" for="op-{{ o.pk }}">
+      <input class="form-check-input mt-0" type="radio" name="opcion" id="op-{{ o.pk }}" value="{{ o.pk }}" required>
+      <span><span class="nombre">{{ o.nombre }}</span>{% if o.descripcion %}<small>{{ o.descripcion }}</small>{% endif %}</span>
+     </label></li>
+     {% endfor %}
+    </ul>
+   </fieldset>
+  </form>
+  {% else %}
   <ul class="opciones-lista" aria-labelledby="t-op">
    {% for o in votacion.opciones_activas %}
-   <li class="opcion"><span class="indice num" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span><span><span class="nombre">{{ o.nombre }}</span>{% if o.descripcion %}<small>{{ o.descripcion }}</small>{% endif %}</span></li>
+   <li class="opcion{% if voto_previo.opcion_id == o.pk %} elegida{% endif %}"><span class="indice num" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span><span><span class="nombre">{{ o.nombre }}</span>{% if o.descripcion %}<small>{{ o.descripcion }}</small>{% endif %}</span>{% if voto_previo.opcion_id == o.pk %}<span class="estado abierta ms-auto">Tu voto</span>{% endif %}</li>
    {% empty %}<li class="vacio">Esta votación todavía no tiene opciones.</li>
    {% endfor %}
   </ul>
+  {% endif %}
  </div>
  <aside class="panel lateral rv" style="--i:2" aria-labelledby="listo">
-  {% if votacion.acepta_votos %}
+  {% if voto_previo %}
+   <h2 class="h3" id="listo">Ya votaste en esta categoría</h2>
+   <p class="muted">Elegiste <strong>{{ voto_previo.opcion }}</strong> en «{{ voto_previo.votacion }}» ({{ voto_previo.fecha|date:"j \d\e F, g:i a" }})</p>
+   <p class="muted">Solo se permite un voto por categoría y edición, aunque la categoría tenga varios subeventos.</p>
+   <a class="btn btn-outline-primary w-100" href="{% url 'festival:mis_votos' %}">Ver mis votos</a>
+  {% elif puede_votar %}
    <h2 class="h3" id="listo">¿Listo para votar?</h2>
-   <p class="muted">El registro de votos se habilitará en la siguiente entrega, con el control de duplicados y las reglas de elegibilidad.</p>
    {% if user.is_authenticated %}
-    <button class="btn btn-primary w-100" type="button" disabled>Votar (próximamente)</button>
+    <p class="muted">Elige una opción de la lista. En el siguiente paso confirmas tu voto antes de guardarlo.</p>
+    <button class="btn btn-primary w-100" type="submit" form="form-voto">Continuar</button>
    {% else %}
+    <p class="muted">Necesitas una cuenta para votar. Cada persona puede votar una vez por categoría.</p>
     <a class="btn btn-primary w-100" href="{% url 'cuentas:login' %}?next={{ request.path|urlencode }}">Inicia sesión para votar</a>
     <p class="mt-3 mb-0 text-center small">¿No tienes cuenta? <a href="{% url 'cuentas:registro' %}">Regístrate</a></p>
    {% endif %}
   {% elif votacion.estado == 'abierta' %}
    <h2 class="h3" id="listo">Fuera del periodo</h2>
-   <p class="muted mb-0">Esta votación está fuera de su periodo de apertura y cierre (RN-03).</p>
+   <p class="muted mb-0">Esta votación está fuera de su periodo de apertura y cierre, así que no recibe votos.</p>
   {% else %}
    <h2 class="h3" id="listo">Votación cerrada</h2>
-   <p class="muted mb-0">Ya no recibe votos. Los resultados se publicarán según la política que apruebe la Fundación (RN-06).</p>
+   <p class="muted mb-0">Ya no recibe votos. Los resultados se publicarán según la política que apruebe la Fundación.</p>
   {% endif %}
  </aside>
 </div>
+{% endwith %}
 {% endblock %}

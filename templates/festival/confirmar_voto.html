@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titulo %}Confirmar voto{% endblock %}
+{% block contenido %}
+<a class="volver" href="{{ votacion.get_absolute_url }}"><span aria-hidden="true">←</span> Cambiar mi elección</a>
+<div class="panel form-estrecho rv">
+ <p class="eyebrow">Confirma tu voto</p>
+ <h1 class="h2">¿Votar por {{ opcion.nombre }}?</h1>
+ <dl class="datos mt-4">
+  <dt>Edición</dt><dd>{{ votacion.categoria.edicion.nombre }}</dd>
+  <dt>Categoría</dt><dd>{{ votacion.categoria.nombre }}</dd>
+  <dt>Votación</dt><dd>{{ votacion.titulo }}</dd>
+  <dt>Tu opción</dt><dd>{{ opcion.nombre }}</dd>
+ </dl>
+ <p class="aviso-voto mt-4">Después de confirmar no podrás cambiar el voto ni votar de nuevo en la categoría {{ votacion.categoria.nombre }}.</p>
+ <form method="post" action="{% url 'festival:votar' votacion.pk %}" class="d-flex flex-wrap gap-2 mt-4">
+  {% csrf_token %}
+  <input type="hidden" name="opcion" value="{{ opcion.pk }}">
+  <input type="hidden" name="confirmar" value="1">
+  <button class="btn btn-primary" type="submit">Confirmar voto</button>
+  <a class="btn btn-outline-secondary" href="{{ votacion.get_absolute_url }}">Cancelar</a>
+ </form>
+</div>
+{% endblock %}

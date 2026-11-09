@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titulo %}Mis votos{% endblock %}
+{% block contenido %}
+<div class="rv"><p class="eyebrow">Mi participación</p><h1>Mis votos</h1><p class="muted">Categorías en las que ya votaste. Cada voto queda guardado en la base de datos con la fecha y hora de registro.</p></div>
+
+<h2 class="h3 mt-4">Categorías votadas <span class="muted fs-6">({{ votos|length }})</span></h2>
+<ul class="filas mt-3">
+ {% for v in votos %}
+ <li class="rv" style="--i:{{ forloop.counter }}"><a class="fila" href="{{ v.votacion.get_absolute_url }}"><span class="indice" aria-hidden="true">✓</span><span><span class="titulo">{{ v.categoria.nombre }} · {{ v.edicion.anio }}</span><span class="meta">Elegiste {{ v.opcion }} en «{{ v.votacion }}» · {{ v.fecha|date:"j \d\e F \d\e Y, g:i a" }}</span></span><span class="estado abierta">Votado</span></a></li>
+ {% empty %}<li class="vacio">Todavía no has votado en ninguna categoría.</li>
+ {% endfor %}
+</ul>
+
+{% if edicion %}
+<h2 class="h3 mt-5">Te falta votar en {{ edicion.anio }}</h2>
+<ul class="filas mt-3">
+ {% for v in pendientes %}
+ <li><a class="fila" href="{{ v.get_absolute_url }}"><span class="indice" aria-hidden="true">●</span><span><span class="titulo">{{ v.categoria.nombre }}</span><span class="meta">{{ v.titulo }}{% if v.fecha_cierre %} · cierra el {{ v.fecha_cierre|date:"j \d\e F" }}{% endif %}</span></span><span class="flecha" aria-hidden="true">→</span></a></li>
+ {% empty %}<li class="vacio">No tienes categorías abiertas pendientes.</li>
+ {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
