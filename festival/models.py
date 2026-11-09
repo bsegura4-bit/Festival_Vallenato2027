@@ -179,10 +179,13 @@ class Opcion(ModeloConFechas):
 
 
 class Voto(models.Model):
-    # el registro de votos se completa en la entrega 3
+    # edicion y categoria se copian de la opcion al guardar; con ellas la base
+    # de datos impide un segundo voto del mismo usuario en la misma categoria
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="votos", verbose_name="usuario",
     )
+    edicion = models.ForeignKey(Edicion, on_delete=models.PROTECT, related_name="votos", verbose_name="edición")
+    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT, related_name="votos", verbose_name="categoría")
     votacion = models.ForeignKey(Votacion, on_delete=models.PROTECT, related_name="votos", verbose_name="votación")
     opcion = models.ForeignKey(Opcion, on_delete=models.PROTECT, related_name="votos", verbose_name="opción")
     fecha = models.DateTimeField("fecha", auto_now_add=True)
@@ -192,10 +195,27 @@ class Voto(models.Model):
         verbose_name_plural = "votos"
         ordering = ["-fecha"]
         indexes = [models.Index(fields=["usuario", "votacion"], name="voto_usuario_votacion_idx")]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["usuario", "edicion", "categoria"], name="voto_unico_usuario_categoria_edicion",
+                violation_error_message="Ya registraste un voto en esta categoría.",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.usuario} → {self.opcion} ({self.votacion})"
 
+    def completar_relaciones(self):
+        if self.opcion_id:
+            self.votacion_id = self.opcion.votacion_id
+            self.categoria_id = self.opcion.votacion.categoria_id
+            self.edicion_id = self.opcion.votacion.categoria.edicion_id
+
     def clean(self):
         if self.opcion_id and self.votacion_id and self.opcion.votacion_id != self.votacion_id:
             raise ValidationError({"opcion": "La opción no pertenece a esta votación."})
+        self.completar_relaciones()
+
+    def save(self, *args, **kwargs):
+        self.completar_relaciones()
+        super().save(*args, **kwargs)

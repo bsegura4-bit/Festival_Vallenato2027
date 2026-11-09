@@ -133,12 +133,27 @@ class OpcionAdmin(admin.ModelAdmin):
 
 @admin.register(Voto)
 class VotoAdmin(admin.ModelAdmin):
-    list_display = ("votacion", "opcion", "usuario", "fecha")
-    list_filter = ("votacion",)
-    readonly_fields = ("usuario", "votacion", "opcion", "fecha")
+    # solo consulta: los votos se registran desde el sitio y no se editan
+    list_display = ("fecha", "usuario", "edicion_anio", "categoria_nombre", "votacion", "opcion")
+    # sin date_hierarchy: en MySQL de Windows faltan las tablas de zonas horarias
+    list_filter = ("edicion", "categoria", "votacion", "fecha")
+    search_fields = ("usuario__username", "usuario__email", "opcion__nombre", "categoria__nombre")
+    list_select_related = ("usuario", "edicion", "categoria", "votacion", "opcion")
+    readonly_fields = ("usuario", "edicion", "categoria", "votacion", "opcion", "fecha")
+
+    @admin.display(description="edición", ordering="edicion__anio")
+    def edicion_anio(self, obj):
+        return obj.edicion.anio
+
+    @admin.display(description="categoría", ordering="categoria__nombre")
+    def categoria_nombre(self, obj):
+        return obj.categoria.nombre
 
     def has_add_permission(self, request):
         return False
 
     def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
         return False
