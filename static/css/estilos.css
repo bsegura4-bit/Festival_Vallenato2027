@@ -150,3 +150,14 @@ a { text-underline-offset: 3px; }
   .datos { grid-template-columns: 1fr; gap: .1rem; }
   .datos dd { margin-bottom: .6rem; }
 }
+
+/* Entrega 3: votación */
+.opcion.elegible { cursor: pointer; transition: border-color .15s, background .15s; }
+.opcion.elegible:hover { border-color: var(--azul); }
+.opcion.elegible:has(input:checked) { border-color: var(--azul); background: var(--azul-claro); box-shadow: 0 0 0 1px var(--azul); }
+.opcion.elegida { border-color: var(--verde); background: var(--verde-claro); }
+fieldset { border: 0; padding: 0; margin: 0; }
+.aviso-voto { background: #fff6e3; border: 1px solid #f0d9a4; border-radius: 12px; padding: .8rem 1rem; color: #6b4e12; }
+.tabla-reporte td { vertical-align: middle; }
+.barra-pct { display: inline-block; width: 70%; height: .55rem; background: var(--gris-claro); border-radius: 999px; overflow: hidden; vertical-align: middle; }
+.barra-pct span { display: block; height: 100%; background: var(--azul); border-radius: 999px; }
