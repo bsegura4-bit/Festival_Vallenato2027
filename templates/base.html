@@ -13,7 +13,7 @@
 </head>
 <body>
 <a class="skip" href="#contenido">Saltar al contenido</a>
-<div class="aviso-proto" role="note"><p><strong>Entrega 2 · versión inicial.</strong> Los datos son de prueba: no son categorías, participantes ni reglas aprobadas por la Fundación (RN-09).</p></div>
+<div class="aviso-proto" role="note"><p><strong>Entrega 3 · módulo de votaciones.</strong> Los datos son de prueba: no son categorías, participantes ni reglas aprobadas por la Fundación (RN-09).</p></div>
 {% with url=request.resolver_match.url_name %}
 <header class="barra"><nav class="navbar navbar-expand-md" aria-label="Navegación principal"><div class="container">
 <a class="navbar-brand" href="{% url 'festival:inicio' %}">Votaciones Festival&nbsp;{{ edicion_actual.anio|default:"2027" }}</a>
@@ -24,7 +24,8 @@
  <li class="nav-item"><a class="nav-link" href="{% url 'festival:categorias' %}" {% if url == 'categorias' or url == 'categoria_detalle' %}aria-current="page"{% endif %}>Categorías</a></li>
  <li class="nav-item"><a class="nav-link" href="{% url 'festival:votaciones' %}" {% if url == 'votaciones' or url == 'votacion_detalle' %}aria-current="page"{% endif %}>Votaciones</a></li>
  {% if user.is_authenticated %}
-  {% if user.is_staff %}<li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Administración</a></li>{% endif %}
+  <li class="nav-item"><a class="nav-link" href="{% url 'festival:mis_votos' %}" {% if url == 'mis_votos' %}aria-current="page"{% endif %}>Mis votos</a></li>
+  {% if user.is_staff %}<li class="nav-item"><a class="nav-link" href="{% url 'festival:reporte_votos' %}" {% if url == 'reporte_votos' %}aria-current="page"{% endif %}>Reporte</a></li><li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Administración</a></li>{% endif %}
   <li class="nav-item"><a class="nav-link" href="{% url 'cuentas:perfil' %}" {% if url == 'perfil' %}aria-current="page"{% endif %}>{{ user.first_name|default:user.username }}</a></li>
   <li class="nav-item"><form method="post" action="{% url 'cuentas:logout' %}" class="m-0">{% csrf_token %}<button class="btn btn-sm btn-outline-primary ms-md-2" type="submit">Cerrar sesión</button></form></li>
  {% else %}
