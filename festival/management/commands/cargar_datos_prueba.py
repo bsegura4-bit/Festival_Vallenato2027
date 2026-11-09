@@ -1,7 +1,8 @@
-# Uso: python manage.py cargar_datos_prueba [--reiniciar]
-# Los participantes son ficticios (RN-09).
+# Uso: python manage.py cargar_datos_prueba [--reiniciar] [--usuarios]
+# Los participantes y usuarios son ficticios (RN-09).
 from datetime import date, datetime, timedelta
 
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
@@ -9,6 +10,7 @@ from django.utils import timezone
 from festival.models import Categoria, Edicion, Opcion, Votacion, Voto
 
 ABIERTA, CERRADA, BORRADOR = Votacion.Estado.ABIERTA, Votacion.Estado.CERRADA, Votacion.Estado.BORRADOR
+CLAVE_DEMO = "Festival2027*"  # cuenta ficticia, no es una credencial real
 
 EDICIONES = [
     {
@@ -20,6 +22,9 @@ EDICIONES = [
             ("Acordeón Profesional", "Concurso de conjuntos de música tradicional vallenata, categoría profesional.", [
                 ("Votación del público · Acordeonero profesional favorito", ABIERTA, "publico",
                  ["Concursante de prueba 1", "Concursante de prueba 2", "Concursante de prueba 3", "Concursante de prueba 4"]),
+                # segundo subevento abierto de la misma categoría: sirve para probar la regla de un voto por categoría
+                ("Subevento · Mejor puya de la ronda final", ABIERTA, "publico",
+                 ["Concursante de prueba 1", "Concursante de prueba 2", "Concursante de prueba 3"]),
                 ("Mejor interpretación de paseo", BORRADOR, "jurado", ["Concursante de prueba 1"]),
             ]),
             ("Acordeón Aficionado", "Concurso de acordeoneros aficionados.", [
@@ -66,6 +71,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--reiniciar", action="store_true", help="Borra los datos del festival antes de cargarlos.")
+        parser.add_argument(
+            "--usuarios", action="store_true",
+            help="Crea dos votantes de prueba (votante1 y votante2) con una clave de demostración.",
+        )
 
     @transaction.atomic
     def handle(self, *args, **opciones):
@@ -121,3 +130,15 @@ class Command(BaseCommand):
 
         resumen = ", ".join(f"{v} {k}" for k, v in conteo.items())
         self.stdout.write(self.style.SUCCESS(f"Datos de prueba listos: {resumen}."))
+
+        if opciones["usuarios"]:
+            Usuario = get_user_model()
+            for i in (1, 2):
+                usuario, creado = Usuario.objects.get_or_create(
+                    username=f"votante{i}",
+                    defaults={"email": f"votante{i}@ejemplo.com", "first_name": f"Votante {i}", "last_name": "Prueba"},
+                )
+                if creado:
+                    usuario.set_password(CLAVE_DEMO)
+                    usuario.save()
+            self.stdout.write(f"Usuarios de prueba: votante1 y votante2 (clave {CLAVE_DEMO}, solo para pruebas locales).")
