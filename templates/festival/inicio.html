@@ -1,58 +1,89 @@
 {% extends "base.html" %}
+{% load static %}
 {% block titulo %}Inicio{% endblock %}
 {% block contenido %}
-<section class="hero">
- <div class="rv" style="--i:0">
-  <p class="eyebrow">{% if edicion %}{% if edicion.numero %}{{ edicion.numero }}.ª edición · {% endif %}{{ edicion.anio }}{% else %}Festival de la Leyenda Vallenata{% endif %}</p>
-  <h1>Las votaciones del Festival de la Leyenda Vallenata</h1>
-  <p class="lead">{% if edicion.descripcion %}{{ edicion.descripcion }}{% else %}Consulta las votaciones disponibles, elige tu opción y confirma tu voto desde el celular o el computador.{% endif %}</p>
-  <div class="hero-acciones">
-   <a class="btn btn-primary" href="{% url 'festival:votaciones' %}">Ver votaciones</a>
-   <a class="enlace-flecha" href="{% url 'festival:categorias' %}">Explorar categorías <span aria-hidden="true">→</span></a>
-  </div>
+<section class="portada">
+ <span class="pildora rv"><b>●</b> {% if edicion %}{% if edicion.numero %}{{ edicion.numero }}.ª edición · {% endif %}{{ edicion.anio }} · {{ edicion.lugar }}{% else %}Festival de la Leyenda Vallenata{% endif %}</span>
+ <h1 class="rv" style="--i:1"><span class="texto-degradado">Las votaciones del Festival de la Leyenda Vallenata</span></h1>
+ <p class="lead rv" style="--i:2">{% if edicion.descripcion %}{{ edicion.descripcion }}{% else %}Consulta las votaciones disponibles, elige tu opción y confirma tu voto desde el celular o el computador.{% endif %}</p>
+ <div class="hero-acciones rv" style="--i:3">
+  <a class="btn btn-primary" href="{% url 'festival:votaciones' %}">Ver votaciones</a>
+  <a class="enlace-flecha" href="{% url 'festival:categorias' %}">Explorar categorías <span aria-hidden="true">→</span></a>
  </div>
- <aside class="panel rv" style="--i:2" aria-labelledby="como">
-  <h2 class="h3" id="como">Cómo votar</h2>
-  <ol class="como-votar">
-   <li><div><strong>Elige una votación</strong><span>Entra por categoría o desde la lista de votaciones abiertas.</span></div></li>
-   <li><div><strong>Selecciona tu opción</strong><span>Revisa las alternativas y marca la que prefieras.</span></div></li>
-   <li><div><strong>Confirma tu voto</strong><span>Revisas tu elección, confirmas y queda guardado. Solo un voto por categoría.</span></div></li>
-  </ol>
- </aside>
+ <div class="escenario rv" style="--i:4">
+  <img src="{% static 'img/heroe-acordeon.svg' %}" alt="Ilustración de un acordeón vallenato con luces de tarima" width="640" height="480">
+ </div>
 </section>
 
 {% if edicion %}
-<div class="estadisticas rv" style="--i:3" aria-label="Resumen de la edición">
+<div class="estadisticas rv" style="--i:5" aria-label="Resumen de la edición">
  <div class="estad"><span class="valor num">{{ total_categorias }}</span><span class="et">Categorías</span></div>
  <div class="estad"><span class="valor num">{{ total_votaciones }}</span><span class="et">Votaciones publicadas</span></div>
  <div class="estad"><span class="valor num">{{ total_abiertas }}</span><span class="et">Abiertas ahora</span></div>
  <div class="estad"><span class="valor">{{ edicion.lugar }}</span><span class="et">{% if edicion.fecha_inicio %}{{ edicion.fecha_inicio|date:"j M" }}{% if edicion.fecha_fin %} – {{ edicion.fecha_fin|date:"j M Y" }}{% endif %}{% else %}Fechas por definir{% endif %}</span></div>
 </div>
+{% endif %}
 
-<div class="dos-columnas mt-5">
- <section aria-labelledby="t-abiertas">
-  <h2 class="h3" id="t-abiertas">Votaciones abiertas</h2>
-  {% if abiertas %}
-  <ul class="filas mt-3">
-   {% for v in abiertas %}
-   <li><a class="fila" href="{{ v.get_absolute_url }}"><span class="indice" aria-hidden="true">●</span><span><span class="titulo">{{ v.titulo }}</span><span class="meta">{{ v.categoria.nombre }}{% if v.fecha_cierre %} · cierra el {{ v.fecha_cierre|date:"j \d\e F, g:i a" }}{% endif %}</span></span><span class="flecha" aria-hidden="true">→</span></a></li>
-   {% endfor %}
-  </ul>
-  {% else %}<p class="vacio">No hay votaciones abiertas en este momento.</p>{% endif %}
- </section>
- <section aria-labelledby="t-cat">
-  <h2 class="h3" id="t-cat">Categorías</h2>
-  <ul class="filas mt-3">
-   {% for c in categorias %}
-   <li><a class="fila" href="{{ c.get_absolute_url }}"><span class="indice num" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span><span><span class="titulo">{{ c.nombre }}</span><span class="meta">{{ c.total_votaciones }}&nbsp;votaci{{ c.total_votaciones|pluralize:"ón,ones" }}</span></span><span class="flecha" aria-hidden="true">→</span></a></li>
-   {% empty %}<li class="vacio">Aún no hay categorías publicadas.</li>
-   {% endfor %}
-  </ul>
- </section>
-</div>
+<section class="seccion" aria-labelledby="como">
+ <div class="seccion-titulo"><p class="eyebrow">Paso a paso</p><h2 id="como">Cómo votar</h2><p>Tres pasos y tu voto queda guardado. Solo se permite un voto por categoría en cada edición.</p></div>
+ <ol class="pasos">
+  <li><strong>Elige una votación</strong><span>Entra por categoría o desde la lista de votaciones abiertas.</span></li>
+  <li><strong>Selecciona tu opción</strong><span>Revisa los participantes y marca el que prefieras.</span></li>
+  <li><strong>Confirma tu voto</strong><span>Revisas tu elección, confirmas y queda registrado.</span></li>
+ </ol>
+</section>
+
+{% if edicion %}
+<section class="seccion">
+ <div class="seccion-titulo"><p class="eyebrow">{{ edicion.anio }}</p><h2>Vota por tus favoritos</h2><p>Las votaciones y categorías se actualizan desde la administración del Festival.</p></div>
+ <div class="dos-columnas">
+  <section aria-labelledby="t-abiertas">
+   <h3 id="t-abiertas">Votaciones abiertas</h3>
+   {% if abiertas %}
+   <ul class="filas mt-3">
+    {% for v in abiertas %}
+    <li><a class="fila" href="{{ v.get_absolute_url }}"><span class="indice" aria-hidden="true">●</span><span><span class="titulo">{{ v.titulo }}</span><span class="meta">{{ v.categoria.nombre }}{% if v.fecha_cierre %} · cierra el {{ v.fecha_cierre|date:"j \d\e F, g:i a" }}{% endif %}</span></span><span class="flecha" aria-hidden="true">→</span></a></li>
+    {% endfor %}
+   </ul>
+   {% else %}<p class="vacio">No hay votaciones abiertas en este momento.</p>{% endif %}
+  </section>
+  <section aria-labelledby="t-cat">
+   <h3 id="t-cat">Categorías</h3>
+   <ul class="filas mt-3">
+    {% for c in categorias %}
+    <li><a class="fila" href="{{ c.get_absolute_url }}"><span class="indice num" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span><span><span class="titulo">{{ c.nombre }}</span><span class="meta">{{ c.total_votaciones }}&nbsp;votaci{{ c.total_votaciones|pluralize:"ón,ones" }}</span></span><span class="flecha" aria-hidden="true">→</span></a></li>
+    {% empty %}<li class="vacio">Aún no hay categorías publicadas.</li>
+    {% endfor %}
+   </ul>
+  </section>
+ </div>
+</section>
 {% else %}
 <p class="vacio mt-4">Todavía no hay una edición publicada. Un administrador puede crearla desde el panel de Django.</p>
 {% endif %}
+
+<section class="seccion" aria-labelledby="t-festival">
+ <div class="seccion-titulo"><p class="eyebrow">Valledupar, Cesar</p><h2 id="t-festival">La fiesta del vallenato</h2><p>Acordeoneros, cantantes, piloneras y compositores llenan la tarima del Festival cada año.</p></div>
+ <div class="galeria">
+  <figure class="cuadro m-0"><img src="{% static 'img/tarima-publico.svg' %}" alt="Ilustración de la tarima del Festival con público levantando sombreros vueltiaos"><figcaption class="rotulo"><strong>La tarima</strong><span>El público vota y acompaña a sus favoritos.</span></figcaption></figure>
+  <figure class="cuadro m-0"><img src="{% static 'img/sombrero-vueltiao.svg' %}" alt="Ilustración de un sombrero vueltiao"><figcaption class="rotulo"><strong>El sombrero vueltiao</strong><span>Símbolo cultural del Caribe colombiano.</span></figcaption></figure>
+ </div>
+ <div class="instrumentos mt-3">
+  <div class="instrumento"><img src="{% static 'img/icono-acordeon.svg' %}" alt=""><strong>Acordeón</strong><span>Lleva la melodía del vallenato.</span></div>
+  <div class="instrumento"><img src="{% static 'img/icono-caja.svg' %}" alt=""><strong>Caja vallenata</strong><span>Tambor pequeño que marca el ritmo.</span></div>
+  <div class="instrumento"><img src="{% static 'img/icono-guacharaca.svg' %}" alt=""><strong>Guacharaca</strong><span>Caña acanalada que se raspa con un trinche.</span></div>
+ </div>
+</section>
+
+<section class="llamado" aria-labelledby="t-llamado">
+ <img src="{% static 'img/terraza-atardecer.svg' %}" alt="">
+ <div class="contenido">
+  <p class="eyebrow">Tu voto cuenta</p>
+  <h2 id="t-llamado">Elige a tu leyenda</h2>
+  <p>{% if user.is_authenticated %}Revisa las categorías en las que todavía puedes participar.{% else %}Crea tu cuenta en un minuto y vota una vez en cada categoría.{% endif %}</p>
+  {% if user.is_authenticated %}<a class="btn btn-primary" href="{% url 'festival:mis_votos' %}">Ver mis votos</a>{% else %}<a class="btn btn-primary" href="{% url 'cuentas:registro' %}">Crear cuenta</a>{% endif %}
+ </div>
+</section>
 
 {% if not user.is_authenticated %}
 <p class="nota-registro">¿Ya tienes cuenta? <a href="{% url 'cuentas:login' %}">Inicia sesión</a> o <a href="{% url 'cuentas:registro' %}">crea una cuenta</a>.</p>
